@@ -34,16 +34,26 @@ MainWindow::MainWindow()
 {
     this->setupUi ( this );
 
-    QImage image ( QString::fromUtf8 ( "/home/saber/.config/fcitx/skin/plasma/input.png" ) );
-    qDebug() << image.isNull();
-    
-    int width = 200;
-    int height = 100;
+    // QImage inputImage ( QString::fromUtf8 ( "/home/saber/.config/fcitx/skin/plasma/input.png" ) );
+    // QImage mainBarImage (QString::fromUTf8 ( "/home/saber/.config/fcitx/skin/plasma/main.png" ) );
+    // qDebug() << inputImage.isNull();
 
-    inputWindowLabel->resize(height, height);
-    QPixmap destPixmap ( width, height );
-    DrawResizableBackground(destPixmap, QPixmap::fromImage(image), width, height, 14, 16, 14 ,14);
-    inputWindowLabel->setPixmap(destPixmap);
+    QImage inputImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/default/input.png" ) );
+    QImage mainBarImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/default/bar.png" ) );
+
+
+    int inputWidth = 200;
+    int inputHeight = 100;
+    int mainBarWidth = 50;
+    int mainBarHeight = 20;
+
+    inputWindowLabel->resize( inputWidth, inputHeight );
+    QPixmap inputDestPixmap ( inputWidth, inputHeight );
+    QPixmap mainBarDestPixmap ( mainBarWidth, mainBarHeight );
+    DrawResizableBackground(inputDestPixmap, QPixmap::fromImage(inputImage), inputWidth, inputHeight, 14, 16, 14 ,14);
+    DrawResizableBackground(mainBarDestPixmap, QPixmap::fromImage(mainBarImage), mainBarWidth, mainBarHeight, 2, 2, 2, 2);
+    inputWindowLabel->setPixmap(inputDestPixmap);
+    mainBarLabel->setPixmap(mainBarDestPixmap);
 }
 
 QSize MainWindow::GetInputBarDemoStringSize()
@@ -52,7 +62,7 @@ QSize MainWindow::GetInputBarDemoStringSize()
 
 void MainWindow::DrawInputBarDemoString()
 {
-    
+
 }
 
 void MainWindow::DrawResizableBackground (
@@ -78,7 +88,7 @@ void MainWindow::DrawResizableBackground (
 
     if ( resizeWidth <= 0 )
         resizeWidth = 1;
-    
+
     /* 九宫格
      * 7 8 9
      * 4 5 6
@@ -91,7 +101,7 @@ void MainWindow::DrawResizableBackground (
         backgroundPixmap,
         QRect(0, marginTop + resizeHeight, marginLeft, marginBottom)
     );
-    
+
     /* part 3 */
     painter.drawPixmap(
         QRect(width - marginRight, height - marginBottom, marginRight, marginBottom),
@@ -131,7 +141,7 @@ void MainWindow::DrawResizableBackground (
         backgroundPixmap,
         QRect(0, marginTop , marginLeft, resizeHeight)
     );
-    
+
     painter.drawPixmap(
         QRect(width - marginRight, marginTop , marginRight, height - marginTop - marginBottom),
         backgroundPixmap,
