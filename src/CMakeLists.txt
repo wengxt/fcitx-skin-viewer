@@ -16,5 +16,5 @@ set(FcitxSkinViewer_SRCS
 
 qt4_automoc(${FcitxSkinViewer_SRCS})
 qt4_wrap_ui(FcitxSkinViewer_SRCS MainWindow.ui)
-add_executable(FcitxSkinViewer ${FcitxSkinViewer_SRCS})
-target_link_libraries(FcitxSkinViewer ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+add_executable(fcitx-skin-viewer ${FcitxSkinViewer_SRCS})
+target_link_libraries(fcitx-skin-viewer ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
