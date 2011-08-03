@@ -22,6 +22,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QSize>
+
 #include "ui_MainWindow.h"
 
 class MainWindow: public QWidget, public Ui::MainWindow
@@ -41,9 +43,14 @@ private:
         int marginTop,
         int marginBottom
     );
-    
+
     QSize GetInputBarDemoStringSize();
-    void DrawInputBarDemoString();
+    void DrawInputBarDemoString (
+        QPixmap& destPixmap,
+        QSize &demoStringSize,
+        int marginLeft,
+        int marginTop
+    );
 };
 
 #endif

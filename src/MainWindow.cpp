@@ -25,6 +25,7 @@
 #include <QVBoxLayout>
 #include <QDebug>
 #include <QPainter>
+#include <QString>
 
 #include <fcitx/ui.h>
 
@@ -52,6 +53,8 @@ MainWindow::MainWindow()
     QPixmap mainBarDestPixmap ( mainBarWidth, mainBarHeight );
     DrawResizableBackground(inputDestPixmap, QPixmap::fromImage(inputImage), inputWidth, inputHeight, 14, 16, 14 ,14);
     DrawResizableBackground(mainBarDestPixmap, QPixmap::fromImage(mainBarImage), mainBarWidth, mainBarHeight, 2, 2, 2, 2);
+    QSize demoStringSize(10, 20);
+    DrawInputBarDemoString(inputDestPixmap, demoStringSize, 14, 14);
     inputWindowLabel->setPixmap(inputDestPixmap);
     mainBarLabel->setPixmap(mainBarDestPixmap);
 }
@@ -60,9 +63,28 @@ QSize MainWindow::GetInputBarDemoStringSize()
 {
 }
 
-void MainWindow::DrawInputBarDemoString()
+void MainWindow::DrawInputBarDemoString(
+    QPixmap& destPixmap,
+    QSize &demoStringSize,
+    int marginLeft,
+    int marginTop
+)
 {
+    QString engDemoString("shu ru shi li");
+    QString chnDemoString( QString::fromUtf8("1.第一候选 2.用户自造 3.其他") );
 
+    QPainter painter ( &destPixmap );
+    painter.drawText(
+        marginLeft,
+        marginTop,
+        engDemoString );
+    painter.drawText(
+        marginLeft,
+        // marginTop,
+        marginTop + demoStringSize.height() + demoStringSize.height()/2,
+        chnDemoString );
+
+    painter.end();
 }
 
 void MainWindow::DrawResizableBackground (
