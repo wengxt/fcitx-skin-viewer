@@ -28,6 +28,8 @@
 #include <QString>
 
 #include <fcitx/ui.h>
+#include <fcitx/fcitx.h>
+#include <fcitx-config/fcitx-config.h>
 
 #include "MainWindow.h"
 
@@ -39,14 +41,24 @@ MainWindow::MainWindow()
     // QImage mainBarImage (QString::fromUTf8 ( "/home/saber/.config/fcitx/skin/plasma/main.png" ) );
     // qDebug() << inputImage.isNull();
 
-    QImage inputImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/default/input.png" ) );
-    QImage mainBarImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/default/bar.png" ) );
-
+    // 下面是测试用的边框、字体颜色
+    QImage inputImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/input.png" ) );
+    QImage mainBarImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/bar.png" ) );
 
     int inputWidth = 200;
     int inputHeight = 100;
     int mainBarWidth = 50;
     int mainBarHeight = 20;
+
+    ConfigColor engColor;
+    engColor.r=255;
+    engColor.g=255;
+    engColor.b=255;
+    ConfigColor chnColor;
+    chnColor.r=255;
+    chnColor.g=255;
+    chnColor.b=255;
+    // 结束
 
     inputWindowLabel->resize( inputWidth, inputHeight );
     QPixmap inputDestPixmap ( inputWidth, inputHeight );
@@ -54,7 +66,7 @@ MainWindow::MainWindow()
     DrawResizableBackground(inputDestPixmap, QPixmap::fromImage(inputImage), inputWidth, inputHeight, 14, 16, 14 ,14);
     DrawResizableBackground(mainBarDestPixmap, QPixmap::fromImage(mainBarImage), mainBarWidth, mainBarHeight, 2, 2, 2, 2);
     QSize demoStringSize(10, 20);
-    DrawInputBarDemoString(inputDestPixmap, demoStringSize, 14, 14);
+    DrawInputBarDemoString(inputDestPixmap, demoStringSize, engColor, chnColor, 14, 14);
     inputWindowLabel->setPixmap(inputDestPixmap);
     mainBarLabel->setPixmap(mainBarDestPixmap);
 }
@@ -66,6 +78,8 @@ QSize MainWindow::GetInputBarDemoStringSize()
 void MainWindow::DrawInputBarDemoString(
     QPixmap& destPixmap,
     QSize &demoStringSize,
+    ConfigColor chnColor,
+    ConfigColor engColor,
     int marginLeft,
     int marginTop
 )
@@ -74,10 +88,14 @@ void MainWindow::DrawInputBarDemoString(
     QString chnDemoString( QString::fromUtf8("1.第一候选 2.用户自造 3.其他") );
 
     QPainter painter ( &destPixmap );
+    QColor engColorQ(engColor.r, engColor.g, engColor.b);
+    QColor chnColorQ(chnColor.r, chnColor.g, chnColor.b);
+    painter.setPen(engColorQ);
     painter.drawText(
         marginLeft,
         marginTop,
         engDemoString );
+    painter.setPen(chnColorQ);
     painter.drawText(
         marginLeft,
         // marginTop,

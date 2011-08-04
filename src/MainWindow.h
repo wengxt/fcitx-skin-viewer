@@ -26,6 +26,8 @@
 
 #include "ui_MainWindow.h"
 
+#include <fcitx-config/fcitx-config.h>
+
 class MainWindow: public QWidget, public Ui::MainWindow
 {
     Q_OBJECT
@@ -33,6 +35,7 @@ public:
     MainWindow();
 
 private:
+
     void DrawResizableBackground (
         QPixmap& destPixmap,
         const QPixmap& backgroundPixmap,
@@ -48,6 +51,8 @@ private:
     void DrawInputBarDemoString (
         QPixmap& destPixmap,
         QSize &demoStringSize,
+        ConfigColor engColor,
+        ConfigColor chnColor,
         int marginLeft,
         int marginTop
     );
