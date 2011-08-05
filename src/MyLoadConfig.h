@@ -17,8 +17,8 @@ struct _Color
 
 struct _GeneralParseStruct
 {
-    midChar name;
     midChar key;
+    midChar value;
 };
 
 struct _SkinInfo
@@ -103,10 +103,13 @@ public:
     _SkinMenu SkinMenu;
     _SkinKeyboard SkinKeyboard;
 
+    FILE *configFile;
+
     LoadConfig();
     LoadConfig(char *configFilePath);
 
-    void GeneralParse(char *configFileParse, tempSave[]); // 把信息读到GeneralParseStruct中，返回到tempSave数组里。
+    void initialGeneralFile(_GeneralParseStruct generalFile[]);
+    void GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[]); // 把信息读到GeneralParseStruct中，返回到tempSave数组里。
 };
 
 
