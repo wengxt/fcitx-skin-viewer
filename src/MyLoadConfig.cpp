@@ -9,10 +9,16 @@
 
 using namespace std;
 
+_GeneralParseStruct::_GeneralParseStruct()
+{
+    strcpy(key, "// blank");
+    strcpy(value, "// blank");
+}
+
 LoadConfig::LoadConfig() {
     generalFile=new _GeneralParseStruct [LONG];
-    initialGeneralFile(generalFile, LONG);
 };
+
 LoadConfig::LoadConfig(char *configFilePath) {
     if ( (configFile=fopen(configFilePath, "r"))==NULL ) {
         perror("Open file error");
@@ -20,17 +26,9 @@ LoadConfig::LoadConfig(char *configFilePath) {
     }
     generalFile=new _GeneralParseStruct [LONG];
 
-    initialGeneralFile(generalFile, LONG);
     GeneralParse(configFile, generalFile);
+    ParseSkinInputBar(generalFile, LONG);
 
-}
-
-void LoadConfig::LoadConfig::initialGeneralFile(_GeneralParseStruct generalFile[], int fileLenth)
-{
-    for (int i=0; i<LONG; i++) {
-        strcpy(generalFile[i].key, "\0");
-        strcpy(generalFile[i].value, "\0");
-    }
 }
 
 void LoadConfig::GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[])
@@ -60,8 +58,84 @@ void LoadConfig::GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[
             // cout << whereIsValue << endl;
             strcpy( generalFile[i].key, tempSave);
             strncpy( generalFile[i].value, whereIsValue, (strlen(whereIsValue)-1) );
+            (generalFile[i].value)[strlen(whereIsValue)-1]='\0';
         }
         cout << generalFile[i].key << "\t" << generalFile[i].value << endl;
         i++;
     }
+    rewind(configFile);
+}
+
+void LoadConfig::ParseSkinInputBar(_GeneralParseStruct generalFile[], int arrayLenth)
+{
+    int i;
+    for (i=0; i<arrayLenth; i++) {
+        if ( strstr(generalFile[i].key, "[SkinInputBar]")!=NULL ) {
+            break;
+        }
+    }
+    
+    i++;
+    for ( ; ( (strchr(generalFile[i].key, '[')==NULL) && (strchr(generalFile[i].key, '/')==NULL) ); i++ ) {
+        if ( strstr(generalFile[i].key, "BackImg")!=NULL ) {
+            sscanf(generalFile[i].value, "%s", SkinInputBar.BackImg);
+        }
+        
+        if ( strstr(generalFile[i].key, "MarginLeft")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.MarginLeft);
+        }
+        
+        if ( strstr(generalFile[i].key, "MarginRight")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.MarginRight);
+        }
+        
+        if ( strstr(generalFile[i].key, "MarginTop")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.MarginTop);
+        }
+        
+        if ( strstr(generalFile[i].key, "MarginBottom")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.MarginBottom);
+        }
+        
+        if ( strstr(generalFile[i].key, "CursorColor")!=NULL ){
+            sscanf(generalFile[i].value, "%d %d %d",
+                   &SkinInputBar.CursorColor.r,
+                   &SkinInputBar.CursorColor.g,
+                   &SkinInputBar.CursorColor.b
+                  );
+        }
+        
+        if ( strstr(generalFile[i].key, "InputPos")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.InputPos);
+        }
+        
+        if ( strstr(generalFile[i].key, "OutputPos")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.OutputPos);
+        }
+        
+        if ( strstr(generalFile[i].key, "BackArrow")!=NULL ){
+            sscanf(generalFile[i].value, "%s", &SkinInputBar.BackArrow);
+        }
+        
+        if ( strstr(generalFile[i].key, "ForwardArrow")!=NULL ){
+            sscanf(generalFile[i].value, "%s", SkinInputBar.FowardArrow);
+        }
+        
+        if ( strstr(generalFile[i].key, "BackArrowX")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.BackArrowX);
+        }
+        
+        if ( strstr(generalFile[i].key, "BackArrowY")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.BackArrowY);
+        }
+        
+        if ( strstr(generalFile[i].key, "ForwardArrowX")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.ForwardArrowX);
+        }
+        
+        if ( strstr(generalFile[i].key, "ForwardArrowY")!=NULL ){
+            sscanf(generalFile[i].value, "%d", &SkinInputBar.ForwardArrowY);
+        }
+    }
+    
 }

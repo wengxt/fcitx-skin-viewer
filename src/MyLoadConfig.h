@@ -19,6 +19,9 @@ struct _GeneralParseStruct
 {
     midChar key;
     midChar value;
+    
+    /** 把key和value都写入“// blank” */
+    _GeneralParseStruct();
 };
 
 struct _SkinInfo
@@ -44,7 +47,7 @@ struct _SkinFont
 };
 struct _SkinMainBar
 {
-    midChar BacImg;
+    midChar BackImg;
     midChar Logo;
     midChar Eng;
     midChar Active;
@@ -67,8 +70,8 @@ struct _SkinInputBar
     midChar FowardArrow;
     int BackArrowX;
     int BackArrowY;
-    int FowardArrowX;
-    int FowardArrowY;
+    int ForwardArrowX;
+    int ForwardArrowY;
 };
 struct _SkinTrayIcon
 {
@@ -108,9 +111,14 @@ public:
 
     LoadConfig();
     LoadConfig(char *configFilePath);
-
-    void initialGeneralFile(_GeneralParseStruct generalFile[], int fileLenth);
-    void GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[]); // 把信息读到GeneralParseStruct中，返回到tempSave数组里。
+    
+private:
+    /** 信息读成key-value的形式，返回到tempSave数组里。 */
+    void GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[]); 
+    
+    /** 把tempSave里存的文件读到这个class的SkinInputBar结构中，下面的函数类似。 */
+    void ParseSkinInputBar(_GeneralParseStruct generalFile[], int arrayLenth);
+    
 };
 
 
