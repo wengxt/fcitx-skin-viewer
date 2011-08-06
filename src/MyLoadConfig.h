@@ -113,10 +113,10 @@ public:
     LoadConfig(char *configFilePath);
     
 private:
-    /** 信息读成key-value的形式，返回到tempSave数组里。 */
+    /** 信息读成key-value的形式，返回到generalFile数组里。 */
     void GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[]); 
     
-    /** 把tempSave里存的文件读到这个class的SkinInputBar结构中，下面的函数类似。 */
+    /** 把generalFile里存的文件读到这个class的SkinInputBar结构中，以后的函数类似。 */
     void ParseSkinInputBar(_GeneralParseStruct generalFile[], int arrayLenth);
     
 };
