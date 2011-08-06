@@ -104,11 +104,12 @@ public:
     _SkinKeyboard SkinKeyboard;
 
     FILE *configFile;
+    _GeneralParseStruct *generalFile;
 
     LoadConfig();
     LoadConfig(char *configFilePath);
 
-    void initialGeneralFile(_GeneralParseStruct generalFile[]);
+    void initialGeneralFile(_GeneralParseStruct generalFile[], int fileLenth);
     void GeneralParse(FILE *configFile, _GeneralParseStruct generalFile[]); // 把信息读到GeneralParseStruct中，返回到tempSave数组里。
 };
 
