@@ -39,9 +39,15 @@ public:
 private:
 
     void DrawResizableBackground (
-        FcitxSkin &skin,
+        //TODO:
         QPixmap &destPixmap,
-        QString skinPath
+        QPixmap &backgroundPixmap,
+        int marginLeft,
+        int marginRight,
+        int marginTop,
+        int marginBottom,
+        int resizeWidth,
+        int resizeHeight
     );
 
     QSize GetInputBarDemoStringSize();
@@ -50,6 +56,14 @@ private:
         QPixmap &destPixmap,
         QString skinPath
     );
+    void DrawWidget (
+        QPixmap &destPixmap,
+        QPixmap &widgetPixmap,
+        int x,
+        int y
+    );
+    
+    void DrawInputBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
 };
 
 #endif

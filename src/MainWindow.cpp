@@ -32,6 +32,7 @@
 #include <fcitx-config/fcitx-config.h>
 
 #include "MainWindow.h"
+#include <qvarlengtharray.h>
 
 MainWindow::MainWindow()
 {
@@ -46,16 +47,18 @@ MainWindow::MainWindow()
     // QImage mainBarImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/bar.png" ) );
     skinPath="/usr/share/fcitx/skin/dark";
     MyLoadConfig skinClass(skinPath);
-    qDebug() << skinClass.skin.skinInfo.skinName;
-    qDebug() << skinClass.skin.skinInputBar.backImg;
-    qDebug() << skinClass.skin.skinInputBar.marginBottom;
-
-    // inputWindowLabel->resize( inputWidth, inputHeight );
+    
     QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground func.
+    DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
+
+#if 0
+    // inputWindowLabel->resize( inputWidth, inputHeight );
     // QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
     DrawResizableBackground(skinClass.skin, inputDestPixmap, skinPath);
     inputWindowLabel->setPixmap(inputDestPixmap);
     // mainBarLabel->setPixmap(mainBarDestPixmap);
+#endif
+
 }
 
 QSize MainWindow::GetInputBarDemoStringSize()
@@ -90,30 +93,27 @@ void MainWindow::DrawInputBarDemoString(
 */
 
 void MainWindow::DrawResizableBackground (
-    FcitxSkin &skin,
     QPixmap &destPixmap,
-    QString skinPath
+    QPixmap &backgroundPixmap,
+    int marginLeft,
+    int marginRight,
+    int marginTop,
+    int marginBottom,
+    int resizeWidth,
+    int resizeHeight
 )
 {
-    QString backgroundPixmapPath=skinPath + '/' + skin.skinInputBar.backImg;
-    qDebug() << backgroundPixmapPath;
-    QPixmap backgroundPixmap(backgroundPixmapPath);
+    /**
+     * 把一个指定的九宫格图片以resizeWidth和resizeHeight为中央区大小画进destPixmap
+     */
     
-    int marginLeft=skin.skinInputBar.marginLeft;
-    int marginRight=skin.skinInputBar.marginRight;
-    int marginTop=skin.skinInputBar.marginTop;
-    int marginBottom=skin.skinInputBar.marginBottom;
     int originWidth=backgroundPixmap.width() - marginLeft - marginRight;
     int originHeight=backgroundPixmap.height() - marginTop - marginBottom;
-    // int resizeWidth = backgroundPixmap.width () - marginLeft - marginRight;
-    // int resizeHeight = backgroundPixmap.height() - marginTop - marginBottom;
-    int resizeWidth=120;
-    int resizeHeight=40;
     
-    if ( resizeHeight <= 0 )
-        resizeHeight = 1;
     if ( resizeWidth <= 0 )
         resizeWidth = 1;
+    if ( resizeHeight <= 0 )
+        resizeHeight = 1;
 
     destPixmap=QPixmap(resizeWidth + marginLeft + marginRight, resizeHeight + marginTop + marginBottom);
     destPixmap.fill ( Qt::transparent );
@@ -186,29 +186,73 @@ void MainWindow::DrawResizableBackground (
         backgroundPixmap,
         QRect(marginLeft, marginTop , originWidth, originHeight)
     );
-    
-    /* 画箭头 */
-    QString backArrowPath=skinPath + '/' + skin.skinInputBar.backArrow;
-    QPixmap backArrowPixmap(backArrowPath);
-    qDebug() << backArrowPath;
-    int iBackArrowX=skin.skinInputBar.iBackArrowX;
-    int iBackArrowY=skin.skinInputBar.iBackArrowY;
-    painter.drawPixmap(
-        QRect(destPixmap.width() - iBackArrowX, iBackArrowY, backArrowPixmap.width(), backArrowPixmap.height()),
-        backArrowPixmap,
-        QRect(0, 0, backArrowPixmap.width(), backArrowPixmap.height())
-    );
-    QString forwardArrowPath=skinPath + '/' + skin.skinInputBar.forwardArrow;
-    QPixmap forwardArrowPixmap(forwardArrowPath);
-    int iForwardArrowX=skin.skinInputBar.iForwardArrowX;
-    int iForwardArrowY=skin.skinInputBar.iForwardArrowY;
-    painter.drawPixmap(
-        QRect(destPixmap.width() - iForwardArrowX, iForwardArrowY, forwardArrowPixmap.width(), forwardArrowPixmap.height()),
-        forwardArrowPixmap,
-        QRect(0, 0, forwardArrowPixmap.width(), forwardArrowPixmap.height())
-    );
-    
     painter.end();
 }
+
+void MainWindow::DrawWidget (
+    QPixmap &destPixmap,
+    QPixmap &widgetPixmap,
+    int x,
+    int y
+)
+{
+    /**
+     * 在指定位置(x,y)按照原大小画出一个小部件，
+     */
+    
+    QPainter painter(&destPixmap);
+    painter.drawPixmap( x, y, widgetPixmap );
+    painter.end();
+}
+
+#if 0
+//TODO:
+void drawInputBar() {
+    QString backgroundPixmapPath=skinPath + '/' + skin.skinInputBar.backImg;
+    qDebug() << backgroundPixmapPath;
+    QPixmap backgroundPixmap(backgroundPixmapPath);
+    
+    // int resizeWidth = backgroundPixmap.width () - marginLeft - marginRight;
+    // int resizeHeight = backgroundPixmap.height() - marginTop - marginBottom;
+    int resizeWidth=120;
+    int resizeHeight=40;
+}
+#endif
+void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skinPath)
+{
+    int marginLeft=skin.skinInputBar.marginLeft;
+    int marginRight=skin.skinInputBar.marginRight;
+    int marginTop=skin.skinInputBar.marginTop;
+    int marginBottom=skin.skinInputBar.marginBottom;
+    int resizeWidth=180;
+    int resizeHeight=40;
+    
+    QString inputBarPath=skinPath + '/' + skin.skinInputBar.backImg;
+    QPixmap inputBarPixmap(inputBarPath);
+    int totalWidth=marginLeft + marginRight + resizeWidth;
+    int totalHeight=marginTop + marginBottom + resizeHeight;
+    destPixmap=QPixmap(totalWidth, totalHeight);
+    destPixmap.fill(Qt::transparent);
+    QPainter painter(&inputBarPixmap);
+    DrawResizableBackground(destPixmap, inputBarPixmap,
+                            marginLeft, marginRight, marginTop, marginBottom,
+                            resizeWidth, resizeHeight
+    );
+    
+    QString backArrowPath=skinPath + '/' + skin.skinInputBar.backArrow;
+    QString forwardArrowPath=skinPath + '/' + skin.skinInputBar.forwardArrow;
+    QPixmap backArrowPixmap(backArrowPath);
+    QPixmap forwardArrowPixmap(forwardArrowPath);
+    DrawWidget(destPixmap, backArrowPixmap,
+               totalWidth - skin.skinInputBar.iBackArrowX, skin.skinInputBar.iBackArrowY
+    );
+    DrawWidget(destPixmap, forwardArrowPixmap,
+               totalWidth - skin.skinInputBar.iForwardArrowX, skin.skinInputBar.iForwardArrowY
+    );
+    qDebug() << backArrowPath;
+    mainBarLabel->setPixmap(destPixmap);
+}
+
+  
 
 #include "MainWindow.moc"
