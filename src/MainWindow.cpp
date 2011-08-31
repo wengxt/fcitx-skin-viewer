@@ -37,7 +37,7 @@
 MainWindow::MainWindow()
 {
     this->setupUi ( this );
-
+    
     // QImage inputImage ( QString::fromUtf8 ( "/home/saber/.config/fcitx/skin/plasma/input.png" ) );
     // QImage mainBarImage (QString::fromUTf8 ( "/home/saber/.config/fcitx/skin/plasma/main.png" ) );
     // qDebug() << inputImage.isNull();
@@ -45,6 +45,7 @@ MainWindow::MainWindow()
     // 下面是测试用的边框、字体颜色
     // QImage inputImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/input.png" ) );
     // QImage mainBarImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/bar.png" ) );
+    mainBarIconOffset=0;
     skinPath="/usr/share/fcitx/skin/dark";
     MyLoadConfig skinClass(skinPath);
     
@@ -184,10 +185,8 @@ void MainWindow::DrawResizableBackground (
 }
 
 void MainWindow::DrawWidget (
-    QPixmap &destPixmap,
-    QPixmap &widgetPixmap,
-    int x,
-    int y
+    QPixmap &destPixmap, QPixmap &widgetPixmap,
+    int x, int y
 )
 {
     /**
@@ -198,6 +197,16 @@ void MainWindow::DrawWidget (
     painter.drawPixmap( x, y, widgetPixmap );
     painter.end();
 }
+
+void MainWindow::DrawMainBarIcon (
+    QPixmap &destPixmap, QPixmap &icon,
+    int originX, int originY
+)
+{
+    DrawWidget(destPixmap, icon, originX + mainBarIconOffset, originY);
+    mainBarIconOffset+=icon.width();
+}
+    
 
 #if 0
 //TODO:
@@ -215,21 +224,39 @@ void drawInputBar() {
 
 void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
 {
+    /*
+    CONFIG_BINDING_REGISTER("SkinMainBar","BackImg",skinMainBar.backImg)
+    CONFIG_BINDING_REGISTER("SkinMainBar","Logo",skinMainBar.logo)
+    CONFIG_BINDING_REGISTER("SkinMainBar","Eng",skinMainBar.eng)
+    CONFIG_BINDING_REGISTER("SkinMainBar","Active",skinMainBar.active)
+    CONFIG_BINDING_REGISTER("SkinMainBar","MarginLeft", skinMainBar.marginLeft)
+    CONFIG_BINDING_REGISTER("SkinMainBar","MarginRight", skinMainBar.marginRight)
+    CONFIG_BINDING_REGISTER("SkinMainBar","MarginTop", skinMainBar.marginTop)
+    CONFIG_BINDING_REGISTER("SkinMainBar","MarginBottom", skinMainBar.marginBottom)
+    CONFIG_BINDING_REGISTER_WITH_FILTER("SkinMainBar","Placement", skinMainBar.placement, FilterPlacement)
+    */
+    QPixmap mainBarPixmap( QString(skinPath + '/' + skin.skinMainBar.backImg) );
+    QPixmap logoPixmap( QString(skinPath + '/' + skin.skinMainBar.logo) );
+    QPixmap engPixmap( QString(skinPath + '/' + skin.skinMainBar.eng) );
+    QPixmap activePixmap( QString(skinPath + '/' + skin.skinMainBar.active) );
+    
     int marginLeft=skin.skinMainBar.marginLeft;
     int marginRight=skin.skinMainBar.marginRight;
     int marginTop=skin.skinMainBar.marginTop;
     int marginBottom=skin.skinMainBar.marginBottom;
     
-    QString mainBarPath=skinPath + '/' + skin.skinMainBar.backImg;
-    QPixmap mainBarPixmap(mainBarPath);
     int totalWidth=mainBarPixmap.width();
     int totalHeight=mainBarPixmap.height();
-    int resizeWidth=totalWidth - marginLeft - marginRight;
-    int resizeHeight=totalHeight - marginTop - marginBottom;
+    int resizeWidth=logoPixmap.height() + engPixmap.height() + activePixmap.height();
+    int resizeHeight=logoPixmap.height();
+    
     DrawResizableBackground(destPixmap, mainBarPixmap,
                             marginLeft, marginRight, marginTop, marginBottom,
                             resizeWidth, resizeHeight
     );
+    DrawMainBarIcon(destPixmap, logoPixmap, marginLeft, marginTop);
+    DrawMainBarIcon(destPixmap, engPixmap, marginLeft, marginTop);
+    DrawMainBarIcon(destPixmap, activePixmap, marginLeft, marginTop);
     mainBarLabel->setPixmap(destPixmap);
 }
 void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skinPath)
@@ -241,8 +268,7 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
     int resizeWidth=180;
     int resizeHeight=40;
     
-    QString inputBarPath=skinPath + '/' + skin.skinInputBar.backImg;
-    QPixmap inputBarPixmap(inputBarPath);
+    QPixmap inputBarPixmap( QString(skinPath + '/' + skin.skinInputBar.backImg) );
     int totalWidth=marginLeft + marginRight + resizeWidth;
     int totalHeight=marginTop + marginBottom + resizeHeight;
     destPixmap=QPixmap(totalWidth, totalHeight);
@@ -253,17 +279,14 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
                             resizeWidth, resizeHeight
     );
     
-    QString backArrowPath=skinPath + '/' + skin.skinInputBar.backArrow;
-    QString forwardArrowPath=skinPath + '/' + skin.skinInputBar.forwardArrow;
-    QPixmap backArrowPixmap(backArrowPath);
-    QPixmap forwardArrowPixmap(forwardArrowPath);
+    QPixmap backArrowPixmap( QString(skinPath + '/' + skin.skinInputBar.backArrow) );
+    QPixmap forwardArrowPixmap( QString(skinPath + '/' + skin.skinInputBar.forwardArrow) );
     DrawWidget(destPixmap, backArrowPixmap,
                totalWidth - skin.skinInputBar.iBackArrowX, skin.skinInputBar.iBackArrowY
     );
     DrawWidget(destPixmap, forwardArrowPixmap,
                totalWidth - skin.skinInputBar.iForwardArrowX, skin.skinInputBar.iForwardArrowY
     );
-    qDebug() << backArrowPath;
     inputWindowLabel->setPixmap(destPixmap);
 }
 
