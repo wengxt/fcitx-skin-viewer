@@ -64,6 +64,7 @@ private:
     );
     
     void DrawInputBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
+    void DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
 };
 
 #endif

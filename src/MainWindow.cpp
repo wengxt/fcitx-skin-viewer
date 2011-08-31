@@ -49,15 +49,9 @@ MainWindow::MainWindow()
     MyLoadConfig skinClass(skinPath);
     
     QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground func.
+    QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
     DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
-
-#if 0
-    // inputWindowLabel->resize( inputWidth, inputHeight );
-    // QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
-    DrawResizableBackground(skinClass.skin, inputDestPixmap, skinPath);
-    inputWindowLabel->setPixmap(inputDestPixmap);
-    // mainBarLabel->setPixmap(mainBarDestPixmap);
-#endif
+    DrawMainBar(mainBarDestPixmap, skinClass.skin, skinPath);
 
 }
 
@@ -218,6 +212,26 @@ void drawInputBar() {
     int resizeHeight=40;
 }
 #endif
+
+void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
+{
+    int marginLeft=skin.skinMainBar.marginLeft;
+    int marginRight=skin.skinMainBar.marginRight;
+    int marginTop=skin.skinMainBar.marginTop;
+    int marginBottom=skin.skinMainBar.marginBottom;
+    
+    QString mainBarPath=skinPath + '/' + skin.skinMainBar.backImg;
+    QPixmap mainBarPixmap(mainBarPath);
+    int totalWidth=mainBarPixmap.width();
+    int totalHeight=mainBarPixmap.height();
+    int resizeWidth=totalWidth - marginLeft - marginRight;
+    int resizeHeight=totalHeight - marginTop - marginBottom;
+    DrawResizableBackground(destPixmap, mainBarPixmap,
+                            marginLeft, marginRight, marginTop, marginBottom,
+                            resizeWidth, resizeHeight
+    );
+    mainBarLabel->setPixmap(destPixmap);
+}
 void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skinPath)
 {
     int marginLeft=skin.skinInputBar.marginLeft;
@@ -250,7 +264,7 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
                totalWidth - skin.skinInputBar.iForwardArrowX, skin.skinInputBar.iForwardArrowY
     );
     qDebug() << backArrowPath;
-    mainBarLabel->setPixmap(destPixmap);
+    inputWindowLabel->setPixmap(destPixmap);
 }
 
   
