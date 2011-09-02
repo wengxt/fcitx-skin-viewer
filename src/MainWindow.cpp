@@ -34,22 +34,16 @@
 #include "MainWindow.h"
 #include <qvarlengtharray.h>
 
+#define MAIN_BAR_ICONS_NUMBER 14
+
 MainWindow::MainWindow()
 {
     this->setupUi ( this );
     
-    // QImage inputImage ( QString::fromUtf8 ( "/home/saber/.config/fcitx/skin/plasma/input.png" ) );
-    // QImage mainBarImage (QString::fromUTf8 ( "/home/saber/.config/fcitx/skin/plasma/main.png" ) );
-    // qDebug() << inputImage.isNull();
-
-    // 下面是测试用的边框、字体颜色
-    // QImage inputImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/input.png" ) );
-    // QImage mainBarImage ( QString::fromUtf8 ( "/home/ukyoi/.config/fcitx/skin/dark/bar.png" ) );
-    mainBarIconOffset=0;
     skinPath="/usr/share/fcitx/skin/dark";
     MyLoadConfig skinClass(skinPath);
     
-    QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground func.
+    QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground.
     QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
     DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
     DrawMainBar(mainBarDestPixmap, skinClass.skin, skinPath);
@@ -59,33 +53,6 @@ MainWindow::MainWindow()
 QSize MainWindow::GetInputBarDemoStringSize()
 {
 }
-
-//TODO:
-/*
-void MainWindow::DrawInputBarDemoString(
-    FcitxSkin skin,
-    QPixmap &destPixmap
-)
-{
-    QString engDemoString("shu ru shi li");
-    QString chnDemoString( QString::fromUtf8("1.第一候选 2.用户自造 3.其他") );
-
-    QPainter painter ( &destPixmap );
-    painter.setPen( QColor(engColor.r, engColor.g, engColor.b) );
-    painter.drawText(
-        marginLeft,
-        marginTop,
-        engDemoString );
-    painter.setPen( QColor(chnColor.r, chnColor.g, chnColor.b) );
-    painter.drawText(
-        marginLeft,
-        // marginTop,
-        marginTop + demoStringSize.height() + demoStringSize.height()/2,
-        chnDemoString );
-
-    painter.end();
-}
-*/
 
 void MainWindow::DrawResizableBackground (
     QPixmap &destPixmap,
@@ -198,67 +165,61 @@ void MainWindow::DrawWidget (
     painter.end();
 }
 
-void MainWindow::DrawMainBarIcon (
-    QPixmap &destPixmap, QPixmap &icon,
-    int originX, int originY
-)
-{
-    DrawWidget(destPixmap, icon, originX + mainBarIconOffset, originY);
-    mainBarIconOffset+=icon.width();
-}
-    
-
-#if 0
-//TODO:
-void drawInputBar() {
-    QString backgroundPixmapPath=skinPath + '/' + skin.skinInputBar.backImg;
-    qDebug() << backgroundPixmapPath;
-    QPixmap backgroundPixmap(backgroundPixmapPath);
-    
-    // int resizeWidth = backgroundPixmap.width () - marginLeft - marginRight;
-    // int resizeHeight = backgroundPixmap.height() - marginTop - marginBottom;
-    int resizeWidth=120;
-    int resizeHeight=40;
-}
-#endif
-
 void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
 {
-    /*
-    CONFIG_BINDING_REGISTER("SkinMainBar","BackImg",skinMainBar.backImg)
-    CONFIG_BINDING_REGISTER("SkinMainBar","Logo",skinMainBar.logo)
-    CONFIG_BINDING_REGISTER("SkinMainBar","Eng",skinMainBar.eng)
-    CONFIG_BINDING_REGISTER("SkinMainBar","Active",skinMainBar.active)
-    CONFIG_BINDING_REGISTER("SkinMainBar","MarginLeft", skinMainBar.marginLeft)
-    CONFIG_BINDING_REGISTER("SkinMainBar","MarginRight", skinMainBar.marginRight)
-    CONFIG_BINDING_REGISTER("SkinMainBar","MarginTop", skinMainBar.marginTop)
-    CONFIG_BINDING_REGISTER("SkinMainBar","MarginBottom", skinMainBar.marginBottom)
-    CONFIG_BINDING_REGISTER_WITH_FILTER("SkinMainBar","Placement", skinMainBar.placement, FilterPlacement)
-    */
+    QPixmap mainBarIcons[MAIN_BAR_ICONS_NUMBER];
     QPixmap mainBarPixmap( QString(skinPath + '/' + skin.skinMainBar.backImg) );
-    QPixmap logoPixmap( QString(skinPath + '/' + skin.skinMainBar.logo) );
-    QPixmap engPixmap( QString(skinPath + '/' + skin.skinMainBar.eng) );
-    QPixmap activePixmap( QString(skinPath + '/' + skin.skinMainBar.active) );
+    mainBarIcons[0]=( QString(skinPath + '/' + skin.skinMainBar.backImg) );
+    mainBarIcons[1]=( QString(skinPath + '/' + skin.skinMainBar.logo) );
+    mainBarIcons[2]=( QString(skinPath + '/' + skin.skinMainBar.eng) );
+    mainBarIcons[3]=( QString(skinPath + '/' + skin.skinMainBar.active) );
+    mainBarIcons[4]=( QString(skinPath + "/chttrans_inactive.png") );
+    mainBarIcons[5]=( QString(skinPath + "/chttrans_active.png") );
+    mainBarIcons[6]=( QString(skinPath + "/vk_inactive.png") );
+    mainBarIcons[7]=( QString(skinPath + "/vk_active.png") );
+    mainBarIcons[8]=( QString(skinPath + "/punc_inactive.png") );
+    mainBarIcons[9]=( QString(skinPath + "/punc_active.png") );
+    mainBarIcons[10]=( QString(skinPath + "/fullwidth_inactive.png") );
+    mainBarIcons[11]=( QString(skinPath + "/fullwidth_active.png") );
+    mainBarIcons[12]=( QString(skinPath + "/remind_inactive.png") );
+    mainBarIcons[13]=( QString(skinPath + "/remind_active.png") );
     
     int marginLeft=skin.skinMainBar.marginLeft;
     int marginRight=skin.skinMainBar.marginRight;
     int marginTop=skin.skinMainBar.marginTop;
     int marginBottom=skin.skinMainBar.marginBottom;
     
-    int totalWidth=mainBarPixmap.width();
-    int totalHeight=mainBarPixmap.height();
-    int resizeWidth=logoPixmap.height() + engPixmap.height() + activePixmap.height();
-    int resizeHeight=logoPixmap.height();
+    int resizeWidth=0;
+    int resizeHeight=0;
+    
+    for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++ ) {
+        resizeWidth += mainBarIcons[i].width();
+    }
+    for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++ ) {
+        if (resizeHeight < mainBarIcons[i].height()) {
+            resizeHeight = mainBarIcons[i].height();
+        }
+    }
+    
+    int totalWidth=resizeWidth+marginTop+marginBottom;
+    int totalHeight=resizeHeight+marginLeft+marginRight;
+    
+    destPixmap=QPixmap(totalWidth, totalHeight);
     
     DrawResizableBackground(destPixmap, mainBarPixmap,
                             marginLeft, marginRight, marginTop, marginBottom,
                             resizeWidth, resizeHeight
     );
-    DrawMainBarIcon(destPixmap, logoPixmap, marginLeft, marginTop);
-    DrawMainBarIcon(destPixmap, engPixmap, marginLeft, marginTop);
-    DrawMainBarIcon(destPixmap, activePixmap, marginLeft, marginTop);
+    
+    for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++) {
+        static int offset=0;
+        DrawWidget(destPixmap, mainBarIcons[i], marginLeft + offset, marginTop);
+        offset += mainBarIcons[i].width();
+    }
+    
     mainBarLabel->setPixmap(destPixmap);
 }
+
 void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skinPath)
 {
     int marginLeft=skin.skinInputBar.marginLeft;

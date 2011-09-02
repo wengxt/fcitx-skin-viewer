@@ -61,12 +61,6 @@ private:
         int x, int y
     );
     
-    int mainBarIconOffset;
-    void DrawMainBarIcon (
-        QPixmap &destPixmap, QPixmap &icon,
-        int originX, int originY
-    );
-    
     void DrawInputBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
     void DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
 };
