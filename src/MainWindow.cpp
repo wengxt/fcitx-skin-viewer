@@ -39,20 +39,46 @@
 MainWindow::MainWindow()
 {
     this->setupUi ( this );
-    
-    skinPath="/usr/share/fcitx/skin/dark";
-    MyLoadConfig skinClass(skinPath);
-    
-    QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground.
-    QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
-    DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
-    DrawMainBar(mainBarDestPixmap, skinClass.skin, skinPath);
+    connect(openButton, SIGNAL(clicked()), this, SLOT(openButtonPushed()));
+    openButtonPushed();
 
 }
 
+void MainWindow::openButtonPushed()
+{
+    /* FIXME:
+     * Will memory leaks when the dialog opened?
+     */
+    skinPath=QFileDialog::getOpenFileName(this, tr("Open Config File"), "/usr/share/fcitx/skin", tr("config file (*.conf)"));
+    skinPath.replace("fcitx_skin.conf", "");
+    redrawButtonPushed();
+}
+
+void MainWindow::redrawButtonPushed()
+{
+    MyLoadConfig *skinClass=new MyLoadConfig(skinPath);
+    DrawAllThings(*skinClass, skinPath);
+    delete skinClass;
+}
+
+void MainWindow::DrawAllThings(MyLoadConfig skinClass, QString skinPath)
+{
+    QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground.
+    QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
+    QPixmap menuDestPixmap (0, 0); // The size of this map should be modified by DrawMenu.
+    
+    DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
+    DrawMainBar(mainBarDestPixmap, skinClass.skin, skinPath);
+    DrawMenu(menuDestPixmap, skinClass.skin, skinPath);
+};
+    
+
+/* FIXME:
+ * What is it?
 QSize MainWindow::GetInputBarDemoStringSize()
 {
 }
+*/
 
 void MainWindow::DrawResizableBackground (
     QPixmap &destPixmap,
@@ -167,7 +193,7 @@ void MainWindow::DrawWidget (
 
 void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
 {
-    QPixmap mainBarIcons[MAIN_BAR_ICONS_NUMBER];
+    QPixmap *mainBarIcons=new QPixmap[MAIN_BAR_ICONS_NUMBER];
     QPixmap mainBarPixmap( QString(skinPath + '/' + skin.skinMainBar.backImg) );
     mainBarIcons[0]=( QString(skinPath + '/' + skin.skinMainBar.backImg) );
     mainBarIcons[1]=( QString(skinPath + '/' + skin.skinMainBar.logo) );
@@ -211,14 +237,19 @@ void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinP
                             resizeWidth, resizeHeight
     );
     
+    int offset=0;
     for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++) {
-        static int offset=0;
         DrawWidget(destPixmap, mainBarIcons[i], marginLeft + offset, marginTop);
         offset += mainBarIcons[i].width();
     }
     
     mainBarLabel->setPixmap(destPixmap);
+    delete [] mainBarIcons;
 }
+
+/* TODO:
+void DrawInputBarDemoString(FcitxSkin &skin, QPixmap &destPixmap, 
+*/
 
 void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skinPath)
 {
@@ -251,6 +282,42 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
     inputWindowLabel->setPixmap(destPixmap);
 }
 
-  
+// TODO:
+void MainWindow::DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
+{
+    int marginLeft=skin.skinMenu.marginLeft;
+    int marginRight=skin.skinMenu.marginRight;
+    int marginTop=skin.skinMenu.marginTop;
+    int marginBottom=skin.skinMenu.marginBottom;
+    QPixmap backgroundPixmap( QString(skinPath + '/' + skin.skinMenu.backImg) );
+    
+    // FIXME:
+    // Color is double type!
+    QColor lineColor(skin.skinMenu.lineColor.r, skin.skinMenu.lineColor.g, skin.skinMenu.lineColor.b);
+    QColor activeColor(skin.skinMenu.activeColor.r, skin.skinMenu.activeColor.g, skin.skinMenu.activeColor.b);
+    QColor activeMenuColor(skin.skinFont.fontColor[5].r, skin.skinFont.fontColor[5].g, skin.skinFont.fontColor[5].b); 
+    QColor inactiveMenuColor(skin.skinFont.fontColor[6].r, skin.skinFont.fontColor[6].g, skin.skinFont.fontColor[6].b); 
+    QString line1( tr("Active line") );
+    QString line2( tr("Inactive line") );
+    
+    DrawResizableBackground(destPixmap, backgroundPixmap,
+                            marginLeft, marginRight, marginTop, marginBottom,
+                            200, 200
+    );
+    
+    QPainter textPainter(&destPixmap);
+    int fontSize=skin.skinFont.fontSize;
+    textPainter.setFont( QFont(QString::fromUtf8("文全驿微米黑"), fontSize) );
+    textPainter.setPen(activeMenuColor);
+    textPainter.drawText(marginLeft, marginTop+fontSize, line1);
+    textPainter.setPen(lineColor);
+    textPainter.fillRect(marginLeft+3, marginTop+fontSize, 200-3, 2, lineColor);
+    textPainter.setPen(inactiveMenuColor);
+    textPainter.drawText(marginLeft, marginTop+2*fontSize+2, line2);
+    textPainter.end();
+    menuLabel->setPixmap(destPixmap);
+    
+}
+
 
 #include "MainWindow.moc"
