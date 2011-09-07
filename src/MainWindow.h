@@ -22,7 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QSize>
+#include <QtGui/QFileDialog>
 
 #include "ui_MainWindow.h"
 #include "MyLoadConfig.h"
@@ -38,8 +38,8 @@ public:
 
 private:
 
+    void DrawAllThings(MyLoadConfig skinClass, QString skinPath);
     void DrawResizableBackground (
-        //TODO:
         QPixmap &destPixmap,
         QPixmap &backgroundPixmap,
         int marginLeft,
@@ -63,6 +63,11 @@ private:
     
     void DrawInputBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
     void DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
+    void DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
+    
+private slots:
+    void openButtonPushed();
+    void redrawButtonPushed();
 };
 
 #endif

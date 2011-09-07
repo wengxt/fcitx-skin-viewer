@@ -3,6 +3,7 @@
 #include <fcitx-utils/log.h>
 #include <libintl.h>
 #include <limits.h>
+
 #include "config.h"
 
 #define _(x) gettext(x)
@@ -161,9 +162,12 @@ int LoadSkinConfig(FcitxSkin* sc, const QString& skinType)
 
 }
 
+/** 
+ *导入所有数据。skinName变量应为到皮肤所在目录的完整路径
+ **/
 MyLoadConfig::MyLoadConfig(const QString& skinName)
 {
     memset(&this->skin, 0, sizeof(FcitxSkin));
     utarray_init(&skin.skinMainBar.skinPlacement, &place_icd);
-    LoadSkinConfig(&this->skin, skinName);
+    int chk=LoadSkinConfig(&this->skin, skinName);
 }

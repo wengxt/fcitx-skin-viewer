@@ -119,9 +119,9 @@ CONFIG_BINDING_DECLARE(FcitxSkin);
 class MyLoadConfig {
 public:
     MyLoadConfig(const QString& skinName);
+    FcitxSkin skin;
     
 private:
-    FcitxSkin skin;
 };
 
 #endif
