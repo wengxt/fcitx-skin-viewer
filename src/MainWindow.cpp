@@ -26,6 +26,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QString>
+#include <QFont>
 
 #include <fcitx/ui.h>
 #include <fcitx/fcitx.h>
@@ -50,8 +51,11 @@ void MainWindow::openButtonPushed()
      * Will memory leaks when the dialog opened?
      */
     skinPath=QFileDialog::getOpenFileName(this, tr("Open Config File"), "/usr/share/fcitx/skin", tr("config file (*.conf)"));
-    skinPath.replace("fcitx_skin.conf", "");
-    redrawButtonPushed();
+    qDebug() << skinPath;
+    if (skinPath!="") {
+        skinPath.replace("fcitx_skin.conf", "");
+        redrawButtonPushed();
+    }
 }
 
 void MainWindow::redrawButtonPushed()
@@ -79,6 +83,25 @@ QSize MainWindow::GetInputBarDemoStringSize()
 {
 }
 */
+
+QColor MainWindow::GetIntColor(ConfigColor floatColor)
+{
+    short r=(int)(floatColor.r*256);
+    short g=(int)(floatColor.g*256);
+    short b=(int)(floatColor.b*256);
+    switch (r) {
+        case 256 : r=255; break;
+    }
+    switch (g) {
+        case 256 : g=255; break;
+    }
+    switch (b) {
+        case 256 : b=255; break;
+    }
+    
+    QColor converted(r, g, b);
+    return converted;
+}
 
 void MainWindow::DrawResizableBackground (
     QPixmap &destPixmap,
@@ -282,39 +305,59 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
     inputWindowLabel->setPixmap(destPixmap);
 }
 
-// TODO:
 void MainWindow::DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
 {
+#define SET_OFFSET offset+=(fontSize+3);
     int marginLeft=skin.skinMenu.marginLeft;
     int marginRight=skin.skinMenu.marginRight;
     int marginTop=skin.skinMenu.marginTop;
     int marginBottom=skin.skinMenu.marginBottom;
+    int width=100;
+    int height=100;
+    int offset=marginTop;
     QPixmap backgroundPixmap( QString(skinPath + '/' + skin.skinMenu.backImg) );
+    QColor menuFontColor0( GetIntColor(skin.skinFont.menuFontColor[0]) );
+    QColor menuFontColor1( GetIntColor(skin.skinFont.menuFontColor[1]) );
+    qDebug() << menuFontColor0;
+    qDebug() << menuFontColor1;
+    QColor activeColor( GetIntColor(skin.skinMenu.activeColor) );
+    QColor lineColor( GetIntColor(skin.skinMenu.lineColor) );
     
     // FIXME:
     // Color is double type!
-    QColor lineColor(skin.skinMenu.lineColor.r, skin.skinMenu.lineColor.g, skin.skinMenu.lineColor.b);
-    QColor activeColor(skin.skinMenu.activeColor.r, skin.skinMenu.activeColor.g, skin.skinMenu.activeColor.b);
-    QColor activeMenuColor(skin.skinFont.fontColor[5].r, skin.skinFont.fontColor[5].g, skin.skinFont.fontColor[5].b); 
-    QColor inactiveMenuColor(skin.skinFont.fontColor[6].r, skin.skinFont.fontColor[6].g, skin.skinFont.fontColor[6].b); 
-    QString line1( tr("Active line") );
-    QString line2( tr("Inactive line") );
     
     DrawResizableBackground(destPixmap, backgroundPixmap,
                             marginLeft, marginRight, marginTop, marginBottom,
-                            200, 200
+                            width, height
     );
     
     QPainter textPainter(&destPixmap);
-    int fontSize=skin.skinFont.fontSize;
-    textPainter.setFont( QFont(QString::fromUtf8("文全驿微米黑"), fontSize) );
-    textPainter.setPen(activeMenuColor);
-    textPainter.drawText(marginLeft, marginTop+fontSize, line1);
+    int fontSize=skin.skinFont.menuFontSize;
+    QFont menuFont("");
+    menuFont.setPixelSize(fontSize);
+    
+    textPainter.setPen(activeColor);
+    textPainter.fillRect(marginLeft, marginTop, width, fontSize, activeColor );
+    
+    //Draw text.
+    textPainter.setFont( menuFont );
+    textPainter.setPen(menuFontColor0);
+    textPainter.drawText(marginLeft, offset, width, fontSize, Qt::AlignCenter, QString::fromUtf8("选中的行") );
+    SET_OFFSET
+    
+    textPainter.setPen(menuFontColor1);
+    textPainter.drawText(marginLeft, offset, width, fontSize, Qt::AlignCenter, QString::fromUtf8("未选中的行") );
+    SET_OFFSET
+    
+    //Draw a line.
     textPainter.setPen(lineColor);
-    textPainter.fillRect(marginLeft+3, marginTop+fontSize, 200-3, 2, lineColor);
-    textPainter.setPen(inactiveMenuColor);
-    textPainter.drawText(marginLeft, marginTop+2*fontSize+2, line2);
-    textPainter.end();
+    textPainter.fillRect(marginLeft+3, offset, width-6, 2, lineColor);
+    offset+=5;
+    
+    textPainter.setPen(menuFontColor1);
+    textPainter.drawText(marginLeft, offset, width, fontSize, Qt::AlignCenter, QString::fromUtf8("Fcitx皮肤查看器") );
+    SET_OFFSET
+    
     menuLabel->setPixmap(destPixmap);
     
 }

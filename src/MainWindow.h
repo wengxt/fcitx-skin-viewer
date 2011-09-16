@@ -35,6 +35,8 @@ class MainWindow: public QWidget, public Ui::MainWindow
 public:
     MainWindow();
     QString skinPath;
+    
+    QColor GetIntColor(ConfigColor floatColor);
 
 private:
 
