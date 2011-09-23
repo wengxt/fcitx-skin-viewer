@@ -35,8 +35,6 @@
 #include "MainWindow.h"
 #include <qvarlengtharray.h>
 
-#define MAIN_BAR_ICONS_NUMBER 14
-
 MainWindow::MainWindow()
 {
     this->setupUi ( this );
@@ -69,10 +67,14 @@ void MainWindow::DrawAllThings(MyLoadConfig skinClass, QString skinPath)
 {
     QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground.
     QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
+    QPixmap mainBarDestPixmap_2 (0, 0); // The size of this map should be modified by DrawMainBar.
     QPixmap menuDestPixmap (0, 0); // The size of this map should be modified by DrawMenu.
 
     DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
     DrawMainBar(mainBarDestPixmap, skinClass.skin, skinPath);
+    mainBarLabel->setPixmap(mainBarDestPixmap);
+    DrawMainBar(mainBarDestPixmap_2, skinClass.skin, skinPath, false, false, false, false, false, false);
+    mainBarLabel_2->setPixmap(mainBarDestPixmap_2);
     DrawMenu(menuDestPixmap, skinClass.skin, skinPath);
 };
 
@@ -206,24 +208,41 @@ void MainWindow::DrawWidget (
     painter.end();
 }
 
-void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
+void MainWindow::DrawMainBar( QPixmap &destPixmap, FcitxSkin &skin, QString skinPath,
+                             bool chnIsActive,
+                             bool vkIsActive,
+                             bool chttransIsActive,
+                             bool puncIsActive,
+                             bool fullwidthIsActive,
+                             bool remindIsActive )
 {
-    QPixmap *mainBarIcons=new QPixmap[MAIN_BAR_ICONS_NUMBER];
+    QPixmap *mainBarIcons=new QPixmap[7];
     QPixmap mainBarPixmap( QString(skinPath + '/' + skin.skinMainBar.backImg) );
-    mainBarIcons[0]=( QString(skinPath + '/' + skin.skinMainBar.backImg) );
-    mainBarIcons[1]=( QString(skinPath + '/' + skin.skinMainBar.logo) );
-    mainBarIcons[2]=( QString(skinPath + '/' + skin.skinMainBar.eng) );
-    mainBarIcons[3]=( QString(skinPath + '/' + skin.skinMainBar.active) );
-    mainBarIcons[4]=( QString(skinPath + "/chttrans_inactive.png") );
-    mainBarIcons[5]=( QString(skinPath + "/chttrans_active.png") );
-    mainBarIcons[6]=( QString(skinPath + "/vk_inactive.png") );
-    mainBarIcons[7]=( QString(skinPath + "/vk_active.png") );
-    mainBarIcons[8]=( QString(skinPath + "/punc_inactive.png") );
-    mainBarIcons[9]=( QString(skinPath + "/punc_active.png") );
-    mainBarIcons[10]=( QString(skinPath + "/fullwidth_inactive.png") );
-    mainBarIcons[11]=( QString(skinPath + "/fullwidth_active.png") );
-    mainBarIcons[12]=( QString(skinPath + "/remind_inactive.png") );
-    mainBarIcons[13]=( QString(skinPath + "/remind_active.png") );
+    mainBarIcons[0]=( QString(skinPath + '/' + skin.skinMainBar.logo) );
+    if (chnIsActive)
+        mainBarIcons[1]=( QString(skinPath + '/' + skin.skinMainBar.active) );
+    else
+        mainBarIcons[1]=( QString(skinPath + '/' + skin.skinMainBar.eng) );
+    if (chttransIsActive)
+        mainBarIcons[2]=( QString(skinPath + "/chttrans_active.png") );
+    else
+        mainBarIcons[2]=( QString(skinPath + "/chttrans_inactive.png") );
+    if (vkIsActive)
+        mainBarIcons[3]=( QString(skinPath + "/vk_active.png") );
+    else
+        mainBarIcons[3]=( QString(skinPath + "/vk_inactive.png") );
+    if (puncIsActive)
+        mainBarIcons[4]=( QString(skinPath + "/punc_active.png") );
+    else
+        mainBarIcons[4]=( QString(skinPath + "/punc_inactive.png") );
+    if (fullwidthIsActive)
+        mainBarIcons[5]=( QString(skinPath + "/fullwidth_active.png") );
+    else
+        mainBarIcons[5]=( QString(skinPath + "/fullwidth_inactive.png") );
+    if (remindIsActive)
+        mainBarIcons[6]=( QString(skinPath + "/remind_active.png") );
+    else
+        mainBarIcons[6]=( QString(skinPath + "/remind_inactive.png") );
 
     int marginLeft=skin.skinMainBar.marginLeft;
     int marginRight=skin.skinMainBar.marginRight;
@@ -233,10 +252,10 @@ void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinP
     int resizeWidth=0;
     int resizeHeight=0;
 
-    for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++ ) {
+    for (int i=0; i<7; i++ ) {
         resizeWidth += mainBarIcons[i].width();
     }
-    for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++ ) {
+    for (int i=0; i<7; i++ ) {
         if (resizeHeight < mainBarIcons[i].height()) {
             resizeHeight = mainBarIcons[i].height();
         }
@@ -253,12 +272,11 @@ void MainWindow::DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinP
     );
 
     int offset=0;
-    for (int i=1; i<MAIN_BAR_ICONS_NUMBER; i++) {
+    for (int i=0; i<7; i++) {
         DrawWidget(destPixmap, mainBarIcons[i], marginLeft + offset, marginTop);
         offset += mainBarIcons[i].width();
     }
 
-    mainBarLabel->setPixmap(destPixmap);
     delete [] mainBarIcons;
 }
 
@@ -276,9 +294,9 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
     for (int i=0; i<3; i++) {
         numberStr[i]=QString("%1.").arg(i+1);
     }
-    candStr[0]=QString(tr("First candidate"));
-    candStr[1]=QString(tr("User phrase"));
-    candStr[2]=QString(tr("Others"));
+    candStr[0]=QString(tr("First candidate "));
+    candStr[1]=QString(tr("User phrase "));
+    candStr[2]=QString(tr("Others "));
     int offset=marginLeft;
 
     QFont inputFont("");

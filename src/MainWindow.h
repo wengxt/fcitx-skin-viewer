@@ -35,7 +35,7 @@ class MainWindow: public QWidget, public Ui::MainWindow
 public:
     MainWindow();
     QString skinPath;
-    
+
     QColor GetIntColor(ConfigColor floatColor);
 
 private:
@@ -62,11 +62,17 @@ private:
         QPixmap &destPixmap, QPixmap &widgetPixmap,
         int x, int y
     );
-    
+
     void DrawInputBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
-    void DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
+    void DrawMainBar(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath,
+                             bool chnIsActive=true,
+                             bool vkIsActive=true,
+                             bool chttransIsActive=true,
+                             bool puncIsActive=true,
+                             bool fullwidthIsActive=true,
+                             bool remindIsActive=true );
     void DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
-    
+
 private slots:
     void openButtonPushed();
     void redrawButtonPushed();

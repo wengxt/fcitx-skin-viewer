@@ -80,13 +80,20 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QLabel" name="mainBarLabel_2">
+        <property name="text">
+         <string>Main Bar</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Menu View</string>
+      <string>Other View</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
