@@ -71,11 +71,16 @@ void MainWindow::DrawAllThings(MyLoadConfig skinClass, QString skinPath)
     QPixmap menuDestPixmap (0, 0); // The size of this map should be modified by DrawMenu.
 
     DrawInputBar(inputDestPixmap, skinClass.skin, skinPath);
+    inputWindowLabel->setPixmap(inputDestPixmap);
+
     DrawMainBar(mainBarDestPixmap, skinClass.skin, skinPath);
     mainBarLabel->setPixmap(mainBarDestPixmap);
+
     DrawMainBar(mainBarDestPixmap_2, skinClass.skin, skinPath, false, false, false, false, false, false);
     mainBarLabel_2->setPixmap(mainBarDestPixmap_2);
+
     DrawMenu(menuDestPixmap, skinClass.skin, skinPath);
+    menuLabel->setPixmap(menuDestPixmap);
 };
 
 QColor MainWindow::GetIntColor(ConfigColor floatColor)
@@ -366,10 +371,7 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
     textPainter.setPen(otherColor);
     textPainter.drawText(offset, marginTop+3+fontHeight, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[2]);
 
-
     textPainter.end();
-
-    inputWindowLabel->setPixmap(destPixmap);
 }
 
 void MainWindow::DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
@@ -427,11 +429,7 @@ void MainWindow::DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath
     SET_OFFSET
 
     textPainter.end();
-
-    menuLabel->setPixmap(destPixmap);
-
 }
 
 
 #include "MainWindow.moc"
-
