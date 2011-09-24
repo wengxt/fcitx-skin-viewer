@@ -26,6 +26,7 @@ int main(int argc, char *args[])
     QApplication app(argc, args);
     MainWindow *mainWindow=new MainWindow;
     mainWindow->show();
+    mainWindow->openButtonPushed();
 
     return app.exec();
 }

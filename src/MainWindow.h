@@ -73,7 +73,7 @@ private:
                              bool remindIsActive=true );
     void DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
 
-private slots:
+public slots:
     void openButtonPushed();
     void redrawButtonPushed();
 };

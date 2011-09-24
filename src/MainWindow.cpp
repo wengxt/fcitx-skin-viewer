@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QString>
 #include <QFont>
+#include <QMessageBox>
 
 #include <fcitx/ui.h>
 #include <fcitx/fcitx.h>
@@ -39,20 +40,21 @@ MainWindow::MainWindow()
 {
     this->setupUi ( this );
     connect(openButton, SIGNAL(clicked()), this, SLOT(openButtonPushed()));
-    openButtonPushed();
 
 }
 
 void MainWindow::openButtonPushed()
 {
-    /* FIXME:
-     * Will memory leaks when the dialog opened?
-     */
-    skinPath=QFileDialog::getOpenFileName(this, tr("Open Config File"), "/usr/share/fcitx/skin", tr("config file (*.conf)"));
+    skinPath=QFileDialog::getExistingDirectory(this, tr("Open Skin Directory"), "/usr/share/fcitx/skin");
     qDebug() << skinPath;
-    if (skinPath!="") {
-        skinPath.replace("fcitx_skin.conf", "");
+    QFile confFile(skinPath + '/' + "fcitx_skin.conf");
+    if (confFile.exists()) {
         redrawButtonPushed();
+    } else {
+        QMessageBox errorMessage;
+        errorMessage.setWindowTitle("Open Directory error");
+        errorMessage.setText(tr("This seems not a proper fcitx skin directory."));
+        errorMessage.exec();
     }
 }
 
