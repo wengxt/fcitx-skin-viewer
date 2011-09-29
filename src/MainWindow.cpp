@@ -390,27 +390,27 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
 
 
     textPainter.setPen(inputColor);
-    textPainter.drawText(marginLeft, inputPos, resizeWidth, fontHeight, Qt::AlignLeft, inputExample);
+    textPainter.drawText(marginLeft, inputPos, resizeWidth, fontHeight, Qt::AlignVCenter, inputExample);
 
     // Draw candidate number:
     textPainter.setPen(indexColor);
     for (int i=0; i<3; i++) {
-        textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, numberStr[i]);
+        textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignVCenter, numberStr[i]);
         offset=offset + metrics.width(numberStr[i]) + metrics.width(candStr[i]);
     }
 
     offset=marginLeft+metrics.width(numberStr[0]);
 
     textPainter.setPen(firstCandColor);
-    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[0]);
+    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignVCenter, candStr[0]);
     offset=offset+metrics.width(candStr[0])+metrics.width(numberStr[1]);
 
     textPainter.setPen(userPhraseColor);
-    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[1]);
+    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignVCenter, candStr[1]);
     offset=offset+metrics.width(candStr[1])+metrics.width(numberStr[2]);
 
     textPainter.setPen(otherColor);
-    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[2]);
+    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignVCenter, candStr[2]);
 
     textPainter.end();
 }
