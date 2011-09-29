@@ -53,11 +53,6 @@ private:
     );
 
     QSize GetInputBarDemoStringSize();
-    void DrawInputBarDemoString (
-        FcitxSkin &skin,
-        QPixmap &destPixmap,
-        QString skinPath
-    );
     void DrawWidget (
         QPixmap &destPixmap, QPixmap &widgetPixmap,
         int x, int y

@@ -45,7 +45,14 @@ MainWindow::MainWindow()
 
 void MainWindow::openButtonPushed()
 {
-    skinPath=QFileDialog::getExistingDirectory(this, tr("Open Skin Directory"), "/usr/share/fcitx/skin");
+    /**
+     * 按钮被按下时，通过指定的conf文件打开一个指定的皮肤。
+     */
+
+    // FIXME:
+    // How to create a directory-selecting dialog that can deal with hidden dirs?
+    /*
+    skinPath=QFileDialog::getExistingDirectory(this, tr("Open Skin Directory"), "~/.config/fcitx/skin/", QFileDialog::HideNameFilterDetails);
     qDebug() << skinPath;
     QFile confFile(skinPath + '/' + "fcitx_skin.conf");
     if (confFile.exists()) {
@@ -56,10 +63,27 @@ void MainWindow::openButtonPushed()
         errorMessage.setText(tr("This seems not a proper fcitx skin directory."));
         errorMessage.exec();
     }
+    */
+    skinPath=QFileDialog::getOpenFileName(this, tr("Open Skin Config"), "~/.config/fcitx/skin/", tr("Fcitx skin config file (fcitx_skin.conf)"));
+    QFile confFile(skinPath);
+    if (skinPath=="") {
+        QMessageBox errorMessage;
+        errorMessage.setWindowTitle(tr("Open Config File Error"));
+        errorMessage.setText(tr("Seems you didn't choose anything."));
+        errorMessage.exec();
+    } else {
+        skinPath.replace("/fcitx_skin.conf", "");
+        redrawButtonPushed();
+    }
+
 }
 
 void MainWindow::redrawButtonPushed()
 {
+    /**
+     * 按钮被按下时，重新绘制所有图片。
+     */
+
     MyLoadConfig *skinClass=new MyLoadConfig(skinPath);
     DrawAllThings(*skinClass, skinPath);
     delete skinClass;
@@ -67,6 +91,10 @@ void MainWindow::redrawButtonPushed()
 
 void MainWindow::DrawAllThings(MyLoadConfig skinClass, QString skinPath)
 {
+    /**
+     * 重新绘制所有图片。
+     */
+
     QPixmap inputDestPixmap (0, 0);  // The size of this map should be modified by DrawResizableBackground.
     QPixmap mainBarDestPixmap (0, 0); // The size of this map should be modified by DrawMainBar.
     QPixmap mainBarDestPixmap_2 (0, 0); // The size of this map should be modified by DrawMainBar.
@@ -87,6 +115,10 @@ void MainWindow::DrawAllThings(MyLoadConfig skinClass, QString skinPath)
 
 QColor MainWindow::GetIntColor(ConfigColor floatColor)
 {
+    /**
+     * 把浮点颜色转化成RGB整数颜色。
+     */
+
     short r=(int)(floatColor.r*256);
     short g=(int)(floatColor.g*256);
     short b=(int)(floatColor.b*256);
@@ -116,7 +148,7 @@ void MainWindow::DrawResizableBackground (
 )
 {
     /**
-     * 把一个指定的九宫格图片以resizeWidth和resizeHeight为中央区大小画进destPixmap
+     * 把一个指定的九宫格图片以resizeWidth和resizeHeight为中央区大小画进destPixmap。
      */
 
     int originWidth=backgroundPixmap.width() - marginLeft - marginRight;
@@ -207,7 +239,7 @@ void MainWindow::DrawWidget (
 )
 {
     /**
-     * 在指定位置(x,y)按照原大小画出一个小部件，
+     * 在指定位置(x,y)按照原大小画出一个小部件。
      */
 
     QPainter painter(&destPixmap);
@@ -289,6 +321,10 @@ void MainWindow::DrawMainBar( QPixmap &destPixmap, FcitxSkin &skin, QString skin
 
 void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skinPath)
 {
+    /**
+     * 绘制输入条
+     */
+
     int marginLeft=skin.skinInputBar.marginLeft;
     int marginRight=skin.skinInputBar.marginRight;
     int marginTop=skin.skinInputBar.marginTop;
@@ -311,14 +347,16 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
     QFontMetrics metrics(inputFont);
     inputFont.setPixelSize(fontHeight);
 
+    // inputPos & outputPos is the LeftTop position of the text.
+    int inputPos=marginTop+skin.skinInputBar.iInputPos-fontHeight;
+    int outputPos=marginTop+skin.skinInputBar.iOutputPos-fontHeight;
+
     QPixmap inputBarPixmap( QString(skinPath + '/' + skin.skinInputBar.backImg) );
     int resizeWidth=0;
-    int resizeHeight=2*fontHeight+3;
+    int resizeHeight=skin.skinInputBar.iOutputPos;
     for (int i=0; i<3; i++) {
         resizeWidth+=metrics.width(numberStr[i]);
-        qDebug() << resizeWidth;
         resizeWidth+=metrics.width(candStr[i]);
-        qDebug() << resizeWidth;
     };
     int totalWidth=marginLeft + marginRight + resizeWidth;
     int totalHeight=marginTop + marginBottom + resizeHeight;
@@ -352,32 +390,36 @@ void MainWindow::DrawInputBar(QPixmap &destPixmap, FcitxSkin& skin, QString skin
 
 
     textPainter.setPen(inputColor);
-    textPainter.drawText(marginLeft, marginTop, resizeWidth, fontHeight, Qt::AlignLeft, inputExample);
+    textPainter.drawText(marginLeft, inputPos, resizeWidth, fontHeight, Qt::AlignLeft, inputExample);
 
+    // Draw candidate number:
     textPainter.setPen(indexColor);
     for (int i=0; i<3; i++) {
-        textPainter.drawText(offset, marginTop+3+fontHeight, resizeWidth, resizeHeight, Qt::AlignLeft, numberStr[i]);
+        textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, numberStr[i]);
         offset=offset + metrics.width(numberStr[i]) + metrics.width(candStr[i]);
     }
 
     offset=marginLeft+metrics.width(numberStr[0]);
 
     textPainter.setPen(firstCandColor);
-    textPainter.drawText(offset, marginTop+3+fontHeight, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[0]);
+    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[0]);
     offset=offset+metrics.width(candStr[0])+metrics.width(numberStr[1]);
 
     textPainter.setPen(userPhraseColor);
-    textPainter.drawText(offset, marginTop+3+fontHeight, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[1]);
+    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[1]);
     offset=offset+metrics.width(candStr[1])+metrics.width(numberStr[2]);
 
     textPainter.setPen(otherColor);
-    textPainter.drawText(offset, marginTop+3+fontHeight, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[2]);
+    textPainter.drawText(offset, outputPos, resizeWidth, resizeHeight, Qt::AlignLeft, candStr[2]);
 
     textPainter.end();
 }
 
 void MainWindow::DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath)
 {
+    /**
+     * 绘制菜单
+     */
 #define SET_OFFSET offset+=(fontSize+3);
     int marginLeft=skin.skinMenu.marginLeft;
     int marginRight=skin.skinMenu.marginRight;
