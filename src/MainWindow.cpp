@@ -514,7 +514,7 @@ void MainWindow::GenList()
 
         }
     }
-    connect( skinChooseTable, SIGNAL(cellPressed(int, int)),
+    connect( skinChooseTable, SIGNAL(cellActivated(int, int)),
                 this, SLOT(openFromTable(int, int)) );
     connect( skinChooseTable, SIGNAL(cellEntered(int, int)),
                 this, SLOT(openFromTable(int, int)) );
