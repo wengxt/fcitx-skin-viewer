@@ -35,6 +35,9 @@ class MainWindow: public QWidget, public Ui::MainWindow
 public:
     MainWindow();
     QString skinPath;
+    QDir skinRootDir;
+    QStringList skinDirsList;
+    QDir skinDir;
 
     QColor GetIntColor(ConfigColor floatColor);
 
@@ -68,9 +71,12 @@ private:
                              bool remindIsActive=true );
     void DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath);
 
+    void GenList();
+
 public slots:
     void openButtonPushed();
     void redrawButtonPushed();
+    void openFromTable(int tableRow, int tableCol);
 };
 
 #endif

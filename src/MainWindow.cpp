@@ -40,6 +40,7 @@ MainWindow::MainWindow()
 {
     this->setupUi ( this );
     connect(openButton, SIGNAL(clicked()), this, SLOT(openButtonPushed()));
+    GenList();
 
 }
 
@@ -64,7 +65,7 @@ void MainWindow::openButtonPushed()
         errorMessage.exec();
     }
     */
-    skinPath=QFileDialog::getOpenFileName(this, tr("Open Skin Config"), "~/.config/fcitx/skin/", tr("Fcitx skin config file (fcitx_skin.conf)"));
+    skinPath=QFileDialog::getOpenFileName( this, tr("Open Skin Config"), QString(QDir::homePath()+"/.config/fcitx/skin/"), tr("Fcitx skin config file (fcitx_skin.conf)") );
     QFile confFile(skinPath);
     if (skinPath=="") {
         QMessageBox errorMessage;
@@ -473,6 +474,57 @@ void MainWindow::DrawMenu(QPixmap &destPixmap, FcitxSkin &skin, QString skinPath
     SET_OFFSET
 
     textPainter.end();
+}
+
+void MainWindow::GenList()
+{
+    skinRootDir.setPath(QString(QDir::homePath()+"/.config/fcitx/skin/"));
+    skinDirsList=skinRootDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    qDebug() << skinDirsList.size();
+
+    /*
+    QStringList tableStringList;
+    tableStringList << tr("Skin Name") << tr("Author") << tr("Description");
+    skinChooseTable->setHorizontalHeaderLabels(tableStringList);
+    skinChooseTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+    */
+
+    for (int i=0; i<skinDirsList.size(); i++) {
+        QDir skinDir(skinRootDir.absoluteFilePath(skinDirsList[i]));
+        QFile skinConfigFile(skinDir.absolutePath()+'/'+"fcitx_skin.conf");
+        // TODO:
+        if (skinConfigFile.exists()) {
+            MyLoadConfig *skinClass=new MyLoadConfig(skinDir.dirName());
+
+            QString skinName=skinClass->skin.skinInfo.skinName;
+            QString skinAuthor=skinClass->skin.skinInfo.skinAuthor;
+            QString skinDesc=skinClass->skin.skinInfo.skinDesc;
+
+            QTableWidgetItem *skinNameItem=new QTableWidgetItem(skinName);
+            QTableWidgetItem *skinAuthorItem=new QTableWidgetItem(skinAuthor);
+            QTableWidgetItem *skinDescItem=new QTableWidgetItem(skinDesc);
+
+            int rowCount=skinChooseTable->rowCount();
+            int colCount=skinChooseTable->columnCount();
+
+            skinChooseTable->insertRow(rowCount);
+            skinChooseTable->setItem(rowCount, 0, skinNameItem);
+            skinChooseTable->setItem(rowCount, 1, skinAuthorItem);
+            skinChooseTable->setItem(rowCount, 2, skinDescItem);
+
+        }
+    }
+    connect( skinChooseTable, SIGNAL(cellPressed(int, int)),
+                this, SLOT(openFromTable(int, int)) );
+    connect( skinChooseTable, SIGNAL(cellEntered(int, int)),
+                this, SLOT(openFromTable(int, int)) );
+}
+
+void MainWindow::openFromTable(int tableRow, int tableCol)
+{
+    QDir skinDir( skinRootDir.absolutePath() + '/' + skinDirsList[tableRow] );
+    skinPath=skinDir.absolutePath();
+    redrawButtonPushed();
 }
 
 
